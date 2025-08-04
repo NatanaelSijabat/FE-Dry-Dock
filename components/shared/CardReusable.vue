@@ -62,10 +62,10 @@ function addEmptyDock(categoryIndex: number) {
 </script>
 
 <template>
-    <div class="flex gap-4 overflow-x-auto p-4">
+    <div class="flex gap-4 overflow-x-auto">
         <Card v-for="(category, i) in items" :key="category.category" class="w-64 flex-shrink-0">
-            <CardHeader class="flex flex-row justify-between items-center pb-2">
-                <CardTitle class="uppercase text-sm font-bold">
+            <CardHeader class="flex flex-row justify-between items-center">
+                <CardTitle class="uppercase text-xs font-base">
                     {{ category.category }}
                 </CardTitle>
                 <Plus class="w-4 h-4 text-gray-500 cursor-pointer" @click="addEmptyDock(i)" />
