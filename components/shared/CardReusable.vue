@@ -9,6 +9,8 @@ defineOptions({
     directives: { draggable: vDraggable }
 })
 
+export type statusDock = "Planning" | "Execution" | "Completed"
+
 interface Dock {
     title: string
     description: string
@@ -23,6 +25,7 @@ interface Dock {
     actual_start_date: string
     actual_end_date: string
     image: string
+    status: statusDock
 }
 
 export interface Props {
@@ -55,7 +58,8 @@ function addEmptyDock(categoryIndex: number) {
         planned_end_date: "",
         actual_start_date: "",
         actual_end_date: "",
-        image: ""
+        image: "",
+        status: "Planning"
     })
 }
 

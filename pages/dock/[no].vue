@@ -7,7 +7,14 @@ import {
     BreadcrumbLink,
     BreadcrumbList,
 } from '@/components/ui/breadcrumb'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import type { statusDock } from '~/components/shared/CardReusable.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,7 +22,7 @@ const dockNo = decodeURIComponent(route.params.no as string)
 
 const { data: drydocks } = await useFetch('/api/drydocks')
 
-const dockDetail = computed(() => {
+const rawDock = computed(() => {
     if (!drydocks.value) return null
     for (const category of drydocks.value) {
         const found = category.docks.find((d: any) => d.no === dockNo)
@@ -26,94 +33,170 @@ const dockDetail = computed(() => {
     return null
 })
 
+const section1 = computed(() => [
+    { label: 'Dry Dock No', value: rawDock.value?.title },
+    { label: 'Description', value: rawDock.value?.description },
+    { label: 'Company', value: rawDock.value?.company },
+    { label: 'Account Code', value: rawDock.value?.account_code },
+    { label: 'Responsible Rank', value: rawDock.value?.responsible_rank },
+    { label: 'Budget', value: rawDock.value?.budget },
+    { label: 'Currency', value: rawDock.value?.currency }
+])
+
+const section2 = computed(() => [
+    { label: 'Planned Start Date', value: rawDock.value?.planned_start_date },
+    { label: 'Planned End Date', value: rawDock.value?.planned_end_date },
+    { label: 'Actual Start Date', value: rawDock.value?.actual_start_date },
+    { label: 'Actual End Date', value: rawDock.value?.actual_end_date }
+])
+
+const statuses: statusDock[] = ["Planning", "Execution", "Completed"]
+
+const dockDetail = ref<any>(null)
+
+watchEffect(() => {
+    if (drydocks.value) {
+        for (const category of drydocks.value) {
+            const found = category.docks.find((d: any) => d.no === dockNo)
+            if (found) {
+                dockDetail.value = { ...found, category: category.category }
+                break
+            }
+        }
+    }
+})
+
+const updateStatus = (newStatus: statusDock) => {
+    if (!dockDetail.value) return
+    dockDetail.value.status = newStatus
+}
+
+definePageMeta({
+    layout: 'default'
+})
 </script>
 
 <template>
-    <div class="p-8 space-y-6 w-full">
-        <div class="flex items-center gap-4 mb-6">
+    <div class="space-y-6 border-b-2 pb-6 w-full max-w-full overflow-x-hidden">
+        <div class="flex items-center p-4 gap-4">
             <button @click="router.back()" class="p-2 rounded-md hover:bg-gray-100 transition">
                 <ChevronLeft class="w-5 h-5 text-gray-700 hover:cursor-pointer" />
             </button>
             <Breadcrumb>
-                <BreadcrumbList class="flex items-center gap-1 text-sm text-gray-600">
+                <BreadcrumbList class="flex flex-wrap items-center text-sm text-gray-600">
                     <BreadcrumbItem>
-                        <BreadcrumbLink href="/">
-                            Dashboard
-                        </BreadcrumbLink>
+                        <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
                     </BreadcrumbItem>
                     /
                     <BreadcrumbItem class="text-gray-500 font-bold">{{ dockNo }} </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
         </div>
-        <Tabs default-value="general" class="w-full">
-            <TabsList class="flex flex-wrap gap-2">
-                <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="specs">Specifications</TabsTrigger>
-                <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                <TabsTrigger value="sourcing">Sourcing</TabsTrigger>
-                <TabsTrigger value="execution">Execution</TabsTrigger>
-                <TabsTrigger value="reporting">Reporting</TabsTrigger>
-                <TabsTrigger value="costs">Costs</TabsTrigger>
-                <TabsTrigger value="purchase-orders">Purchase Orders</TabsTrigger>
-            </TabsList>
-        </Tabs>
-
-        <div class="bg-blue-500 p-4 rounded-lg flex justify-between items-center">
-            <div class="flex gap-4 items-center">
-                <img :src="dockDetail?.image" class="w-20 h-20 rounded-lg object-cover" />
+        <div class="flex flex-wrap justify-end gap-2 px-4 sm:px-6">
+            <Button variant="outline">General</Button>
+            <Button variant="outline">Specifications</Button>
+            <Button variant="outline">Tasks</Button>
+            <Button variant="outline">Sourcing</Button>
+            <Button variant="outline">Execution</Button>
+            <Button variant="outline">Reporting</Button>
+            <Button variant="outline">Costs</Button>
+            <Button variant="outline">Purchase Orders</Button>
+        </div>
+        <div class="bg-[#29A1FF] p-4 flex flex-col sm:flex-row justify-between items-center w-full gap-4">
+            <div class="flex flex-col sm:flex-row gap-4 items-center sm:pl-6 text-center sm:text-left">
+                <img :src="rawDock?.image" class="w-24 h-24 rounded-lg object-cover" />
                 <div class="text-white">
-                    <p class="uppercase text-xs">{{ dockDetail?.category }}</p>
-                    <h1 class="text-2xl font-bold">{{ dockDetail?.title }}</h1>
-                    <p class="text-sm">{{ dockDetail?.description }}</p>
+                    <p class="uppercase text-xs font-bold">{{ rawDock?.category }}</p>
+                    <h1 class="text-2xl">{{ rawDock?.no }}</h1>
+                    <p>{{ rawDock?.description }}</p>
                 </div>
             </div>
-            <Button variant="secondary" class="bg-white text-blue-500 hover:bg-gray-100">
+            <Button variant="secondary" class="bg-white text-blue-500 hover:bg-gray-100 w-full sm:w-auto">
                 Start Dry Dock
             </Button>
         </div>
-
-        <div class="grid grid-cols-3 gap-4 text-sm">
-            <div>
-                <p class="text-gray-500">Dry Dock No</p>
-                <p>{{ dockDetail?.title }}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm w-full px-4 md:px-10 my-10">
+            <div v-for="(item, index) in section1" :key="index">
+                <p class="text-gray-500">{{ item.label }}</p>
+                <p :class="{ 'font-medium': item.label === 'Dry Dock No' }">
+                    {{ item.value }}
+                </p>
             </div>
-            <div>
-                <p class="text-gray-500">Description</p>
-                <p>{{ dockDetail?.description }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Company</p>
-                <p>{{ dockDetail?.company }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Account Code</p>
-                <p>{{ dockDetail?.account_code }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Responsible Rank</p>
-                <p>Roshan Ahluwalia / CE</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Budget</p>
-                <p>{{ dockDetail?.budget }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Planned Start Date</p>
-                <p>{{ dockDetail?.planned_start_date }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Planned End Date</p>
-                <p>{{ dockDetail?.planned_end_date }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Actual Start Date</p>
-                <p>{{ dockDetail?.actual_start_date }}</p>
-            </div>
-            <div>
-                <p class="text-gray-500">Actual End Date</p>
-                <p>{{ dockDetail?.actual_end_date }}</p>
+        </div>
+        <div class="pt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm w-full px-4 md:px-10">
+            <div v-for="(item, index) in section2" :key="index">
+                <p class="text-gray-500">{{ item.label }}</p>
+                <p>{{ item.value }}</p>
             </div>
         </div>
     </div>
+
+    <div class="px-4 md:px-10 mt-6">
+        <Card>
+            <CardHeader>
+                <CardTitle class="text-xs">Shipyard</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div class="flex flex-col md:flex-row md:items-start gap-4 w-full">
+                    <div class="flex flex-col gap-4 w-full md:w-1/2">
+                        <Select class="w-full">
+                            <SelectTrigger class="w-full">
+                                <SelectValue placeholder="Select Shipyard" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="-">-</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Button class="uppercase w-full md:w-1/3">
+                            Select Shipyard
+                        </Button>
+                    </div>
+                    <div class="text-sm font-medium bg-[#FCF7E8] w-full md:w-1/2 md:row-span- p-2 rounded">
+                        <span class="text-[#EDBF6F]">No Shipyard Selected</span>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    </div>
+
+    <div class="px-4 md:px-10 mt-6">
+        <Card>
+            <CardContent>
+                <div class="flex flex-col gap-6 md:flex-row md:gap-10 w-full">
+                    <div class="flex flex-col gap-2 w-full md:w-1/2">
+                        <h1 class="text-xs font-semibold">Priority</h1>
+                        <Select class="w-full">
+                            <SelectTrigger class="w-full">
+                                <SelectValue placeholder="Select Priority" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="-">-</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="low">Low</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div class="flex flex-col gap-2 w-full md:w-1/2">
+                        <h1 class="text-xs font-semibold">Status</h1>
+                        <div class="flex flex-wrap gap-2">
+                            <Badge v-for="s in statuses" :key="s" variant="outline"
+                                class="px-4 py-2 rounded-full cursor-pointer"
+                                :class="dockDetail?.status === s ? 'border-primary text-primary' : ''"
+                                @click="updateStatus(s)">
+                                {{ s }}
+                            </Badge>
+                        </div>
+                    </div>
+
+                </div>
+            </CardContent>
+        </Card>
+    </div>
+
+
+
+
+
+    <div style="height: 100dvh;"></div>
 </template>

@@ -28,7 +28,7 @@ const { state } = useSidebar()
 </script>
 
 <template>
-    <Sidebar collapsible="icon" class="bg-[#29A1FF] z-100">
+    <Sidebar collapsible="icon" class="bg-[#29A1FF] z-100 border-[#29A1FF]">
         <SidebarHeader class="bg-[#29A1FF] text-white">
             <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2 overflow-hidden">

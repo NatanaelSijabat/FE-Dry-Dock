@@ -17,6 +17,7 @@ export default defineEventHandler(() => {
           planned_end_date: "01/01/2020",
           actual_start_date: "01/01/2020",
           actual_end_date: "01/01/2020",
+          status: "Planning"
         },
         {}
       ]
@@ -38,6 +39,7 @@ export default defineEventHandler(() => {
           planned_end_date: "01/02/2020",
           actual_start_date: "01/02/2020",
           actual_end_date: "01/02/2020",
+          status: "Planning"
         }
       ]
     },
@@ -58,6 +60,7 @@ export default defineEventHandler(() => {
           planned_end_date: "01/02/2020",
           actual_start_date: "01/02/2020",
           actual_end_date: "01/02/2020",
+          status: "Planning"
         }
       ]
     },
@@ -78,6 +81,7 @@ export default defineEventHandler(() => {
           planned_end_date: "01/02/2020",
           actual_start_date: "01/02/2020",
           actual_end_date: "01/02/2020",
+          status: "Planning"
         }
       ]
     },
@@ -98,6 +102,7 @@ export default defineEventHandler(() => {
           planned_end_date: "01/02/2020",
           actual_start_date: "01/02/2020",
           actual_end_date: "01/02/2020",
+          status: "Planning"
         }
       ]
     },
@@ -118,6 +123,7 @@ export default defineEventHandler(() => {
           planned_end_date: "01/02/2020",
           actual_start_date: "01/02/2020",
           actual_end_date: "01/02/2020",
+          status: "Planning"
         }
       ]
     },
