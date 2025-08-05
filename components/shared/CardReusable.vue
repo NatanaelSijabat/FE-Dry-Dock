@@ -9,7 +9,7 @@ defineOptions({
     directives: { draggable: vDraggable }
 })
 
-export type statusDock = "Planning" | "Execution" | "Completed"
+export type StatusDock = "Planning" | "Execution" | "Completed"
 
 interface Dock {
     title: string
@@ -25,7 +25,7 @@ interface Dock {
     actual_start_date: string
     actual_end_date: string
     image: string
-    status: statusDock
+    status: StatusDock
 }
 
 export interface Props {
@@ -33,37 +33,42 @@ export interface Props {
     docks: Dock[]
 }
 
-const props = defineProps<{ items: Props[] }>()
+const items = ref<Props[]>([])
+
+onMounted(async () => {
+    items.value = await $fetch<Props[]>('/api/drydocks')
+})
 const router = useRouter()
 
 function goToDetail(dockNo: string) {
     router.push(`/dock/${encodeURIComponent(dockNo)}`)
 }
 
-function isDockEmpty(dock: Dock) {
-    return Object.values(dock).every(v => v === "" || v === null || v === undefined)
-}
-
-function addEmptyDock(categoryIndex: number) {
-    props.items[categoryIndex].docks.push({
-        title: "",
-        description: "",
-        no: "",
-        account_code: "",
-        currency: "",
-        responsible_rank: "",
-        company: "",
-        budget: "",
-        planned_start_date: "",
-        planned_end_date: "",
-        actual_start_date: "",
-        actual_end_date: "",
-        image: "",
-        status: "Planning"
+async function addEmptyDock(categoryIndex: number) {
+    const res = await fetch('/api/drydocks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoryIndex })
     })
+    const result = await res.json()
+    if (result.success) {
+        items.value[categoryIndex].docks.push(result.data)
+    }
 }
 
+async function updateDock(categoryIndex: number, dockIndex: number, updates: Partial<Dock>) {
+    const res = await fetch('/api/drydocks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoryIndex, dockIndex, updates })
+    })
+    const result = await res.json()
+    if (result.success) {
+        Object.assign(items.value[categoryIndex].docks[dockIndex], updates)
+    }
+}
 </script>
+
 
 <template>
     <div class="flex gap-4 overflow-x-auto">
@@ -76,16 +81,16 @@ function addEmptyDock(categoryIndex: number) {
             </CardHeader>
 
             <CardContent>
-                <div v-draggable="[
-                    category.docks,
-                    { group: { name: 'drydock', pull: true, put: true }, animation: 150 }
-                ]" class="space-y-2 min-h-[50px]">
-                    <div v-for="dock in category.docks" :key="dock.no || Math.random()"
+                <div v-draggable="[category.docks, { group: { name: 'drydock', pull: true, put: true }, animation: 150 }]"
+                    class="space-y-2 min-h-[50px]">
+                    <div v-for="(dock, j) in category.docks" :key="dock.no || `${i}-${j}`"
                         class="flex gap-3 p-2 border rounded-lg hover:bg-gray-50 cursor-move">
-                        <template v-if="isDockEmpty(dock)">
+                        <template v-if="!dock.title && !dock.description">
                             <div class="flex flex-col gap-2">
-                                <Input type="text" placeholder="Title..." v-model="dock.title" />
-                                <Textarea type="text" placeholder="Description..." v-model="dock.description" />
+                                <Input v-model="dock.title" type="text" placeholder="Title..."
+                                    @keyup.enter="updateDock(i, j, { title: dock.title })" />
+                                <Textarea placeholder="Description..." v-model="dock.description"
+                                    @keyup.enter="updateDock(i, j, { description: dock.description })" />
                             </div>
                         </template>
 

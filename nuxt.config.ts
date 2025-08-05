@@ -30,5 +30,8 @@ export default defineNuxtConfig({
         dir: 'assets/images'
       }
     ]
-  }
+  }, nitro: {
+    watchOptions: { ignored: ['server/data/**'] }
+  },
+
 })

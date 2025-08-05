@@ -14,7 +14,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import type { statusDock } from '~/components/shared/CardReusable.vue'
+import type { StatusDock } from '~/components/shared/CardReusable.vue'
+import DonutChart from "~/components/shared/DonutChart.vue"
+import BarChart from "~/components/shared/BarChart.vue"
+
 
 const route = useRoute()
 const router = useRouter()
@@ -50,7 +53,7 @@ const section2 = computed(() => [
     { label: 'Actual End Date', value: rawDock.value?.actual_end_date }
 ])
 
-const statuses: statusDock[] = ["Planning", "Execution", "Completed"]
+const statuses: StatusDock[] = ["Planning", "Execution", "Completed"]
 
 const dockDetail = ref<any>(null)
 
@@ -66,10 +69,32 @@ watchEffect(() => {
     }
 })
 
-const updateStatus = (newStatus: statusDock) => {
+const updateStatus = (newStatus: StatusDock) => {
     if (!dockDetail.value) return
     dockDetail.value.status = newStatus
 }
+
+const chartData = [
+    { value: 64, name: "Open", color: "#29A1FF" },
+    { value: 50, name: "In Progress", color: "#4CAF50" },
+    { value: 68, name: "On Hold", color: "#E91E63" },
+    { value: 40, name: "Complete", color: "#03A9F4" },
+    { value: 132, name: "Others", color: "#B07A2D" }
+]
+
+const yardStayData = [
+    { value: 80806, name: "In Dock", color: "#29A1FF" },
+    { value: 80808, name: "Repair", color: "#4CAF50" },
+]
+
+const categories = ["General", "Equipment for Crew", "Hull", "Machiney Main Components", "Ship Common Systems", "Fasting"]
+const series = [
+  { name: "Total Budget", data: [50, 40, 80, 20, 60, 0], color: "#29A1FF" },
+  { name: "Total Estimates", data: [400, 250, 800, 300, 500, 0], color: "#4CAF50" },
+  { name: "Total Costs", data: [300, 260, 600, 250, 450, 0], color: "#E91E63" }
+]
+
+
 
 definePageMeta({
     layout: 'default'
@@ -194,9 +219,58 @@ definePageMeta({
         </Card>
     </div>
 
+    <div class="px-4 md:px-10 mt-5">
+        <h1 class="text-2xl font-semibold">Cost Summary</h1>
+        <div class="grid grid-cols-4 my-3 gap-2">
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Budget</span>
+                <span class="font-semibold">200,000$</span>
+            </div>
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Yard Estimates</span>
+                <span class="font-semibold">200,000$</span>
+            </div>
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Owner Estimates</span>
+                <span class="font-semibold">200,000$</span>
+            </div>
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Total Estimates</span>
+                <span class="font-semibold">200,000$</span>
+            </div>
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Actual Yard Costs</span>
+                <span class="font-semibold">400$</span>
+            </div>
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Actual Owner Costs</span>
+                <span class="font-semibold">400$</span>
+            </div>
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Total Costs</span>
+                <span class="font-semibold">400$</span>
+            </div>
+            <div class="border rounded-xl px-8 py-3 bg-white/90 flex flex-col">
+                <span class="font-base">Variance</span>
+                <span class="font-semibold">400$</span>
+            </div>
+        </div>
+    </div>
 
+    <div class="px-4 md:px-10 mt-5">
+        <div class="w-full mt-4 flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <DonutChart title="Status" :data="chartData" />
+            </div>
+            <div class="flex-1">
+                <DonutChart title="Yard Stay" :data="yardStayData" />
+            </div>
+        </div>
+    </div>
 
+    <div class="px-4 md:px-10 mt-5">
+        <BarChart title="Comparison" :categories="categories" :series="series" />
+    </div>
+    <div class="h-screen"></div>
 
-
-    <div style="height: 100dvh;"></div>
 </template>

@@ -7,7 +7,8 @@ import { Search } from "lucide-vue-next"
 import { ref, computed } from "vue"
 
 const { state } = useSidebar()
-const { data: drydocks } = await useFetch<Props[]>('/api/drydocks')
+const { data: drydocks, refresh } = await useFetch<Props[]>('/api/drydocks')
+
 
 const searchQuery = ref("")
 
@@ -74,14 +75,12 @@ const series = [
       </div>
 
       <div class="w-full md:w-1/2 mt-4">
-         <DonutChart title="Active Dry Docks" :data="chartData" />
+        <DonutChart title="Active Dry Docks" :data="chartData" />
       </div>
 
-      <div class="w-full mt-4">
-         <BarChart title="Costs" :categories="categories" :series="series" />
+      <div class="w-full mt-4 mb-20">
+        <BarChart title="Costs" :categories="categories" :series="series" />
       </div>
-
-      <div class="h-screen"></div>
     </main>
   </div>
 </template>
